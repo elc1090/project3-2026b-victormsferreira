@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Projeto 3</title>
+</head>
+<body>
+    <div>
+        <p>Projeto 3</p>
+    </div>
+    <div id="login-box" class="center-container" style="position: absolute;">
+            <div class="vertical-container">
+                <label for="username">Email</label>
+                <input id="loginemail" type="text" placeholder="Email" name="username" autocomplete="username" required>
+                <label for="password">Senha</label>
+                <input id="loginpassword" type="password" placeholder="Senha" name="password" autocomplete="current-password" required>
+                <button id="login-button">Entrar</button>
+                <button id="goto-signup-button">Registrar</button>
+            </div>
+    </div>
+    <div id="signup-box" class="hidden" style="position: absolute;">
+            <div class="vertical-container">
+                <label for="username">Nome de Usuário</label>
+                <input id="signupname" type="text" placeholder="Usuário" name="username" autocomplete="username" required>
+                <label for="email">Email</label>
+                <input id="signupemail" type="text" placeholder="Email" name="email" autocomplete="username" required>
+                <label for="password">Senha</label>
+                <input id="signuppassword" type="password" placeholder="Senha" name="password" autocomplete="current-password" required>
+                <label for="confirm-password">Confirmar Senha</label>
+                <input id="signuppasswordconfirm" type="password" placeholder="Senha" name="confirm-password" autocomplete="current-password" required>
+                <button id="signup-button">Registrar</button>
+                <button id="back-to-login-button">Voltar</button>
+            </div>
+    </div>
+
+    <script src="/dist/pocketbase.umd.js"></script>
+    <script src="/const.js"></script>
+    <script src="/login.js"></script>
+</body>
+</html>
