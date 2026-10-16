@@ -21,8 +21,9 @@ backToLoginBtn.addEventListener("click", ((e) => {
 loginBtn.addEventListener("click", ((e) => {
     pb.collection("users").authWithPassword(
         document.getElementById("loginemail").value,
-        document.getElementById("loginpassword").value).then((e) => {window.location.replace("/index.html");});
-
+        document.getElementById("loginpassword").value).then((e) => {
+            window.location.replace("/index.html");
+        });
 }));
 
 
@@ -36,6 +37,10 @@ signupBtn.addEventListener("click", ((e) => {
         "passwordConfirm": document.getElementById("signuppasswordconfirm").value
     };
     pb.collection('users').create(signupRequest).then((record) => {
-        window.location.replace("/index.html");
-    })
+        pb.collection("users").authWithPassword(
+            document.getElementById("signupemail").value,
+            document.getElementById("signuppassword").value).then((e) => {
+                window.location.replace("/index.html");
+            });
+    });
 }));
