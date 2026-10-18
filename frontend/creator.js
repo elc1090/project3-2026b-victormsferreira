@@ -19,46 +19,16 @@ logoutBtn.addEventListener("click", ((e) => {
 }))
 
 
+// WGPU Variables
 
-
-// Clear color for GPURenderPassDescriptor
-const clearColor = { r: 0.0, g: 0.5, b: 1.0, a: 1.0 };
-
-// Vertex data for triangle
-// Each vertex has 8 values representing position and color: X Y Z W R G B A
-
-const vertices = new Float32Array([
-  0.0,  0.6, 0, 1, 1, 0, 0, 1,
- -0.5, -0.6, 0, 1, 0, 1, 0, 1,
-  0.5, -0.6, 0, 1, 0, 0, 1, 1
-]);
-
-// Vertex and fragment shaders
-
-const shaders = `
-struct VertexOut {
-  @builtin(position) position : vec4f,
-  @location(0) color : vec4f
-}
-
-@vertex
-fn vertex_main(@location(0) position: vec4f,
-               @location(1) color: vec4f) -> VertexOut
-{
-  var output : VertexOut;
-  output.position = position;
-  output.color = color;
-  return output;
-}
-
-@fragment
-fn fragment_main(fragData: VertexOut) -> @location(0) vec4f
-{
-  return fragData.color;
-}
-`;
-
-// Main function
+var adapter;
+var device;
+var canvas;
+var context;
+var renderPipeline;
+var descriptor;
+var uniformBuffer;
+var uniformBindGroup;
 
 async function init() {
   // 1: request adapter and device
@@ -66,25 +36,24 @@ async function init() {
     throw Error('WebGPU not supported.');
   }
 
-  const adapter = await navigator.gpu.requestAdapter();
+  adapter = await navigator.gpu.requestAdapter();
   if (!adapter) {
     throw Error('Couldn\'t request WebGPU adapter.');
   }
 
-  let device = await adapter.requestDevice();
+  device = await adapter.requestDevice();
 
   // 2: Create a shader module from the shaders template literal
   const shaderModule = device.createShaderModule({
-    code: shaders
+    code: document.getElementById("shader").textContent
   });
 
   // 3: Get reference to the canvas to render on
-  var canvas = document.getElementById("wgpu-canvas");
-  const context = canvas.getContext('webgpu');
-
-  context.canvas.width = canvas.offsetWidth;
-  context.canvas.height = canvas.offsetHeight;
-
+  canvas = document.getElementById("wgpu-canvas");
+  context = canvas.getContext('webgpu');
+  let bounding = canvas.getBoundingClientRect();
+  context.canvas.width = bounding.width;
+  context.canvas.height = bounding.height;
 
   context.configure({
     device: device,
@@ -92,35 +61,12 @@ async function init() {
     alphaMode: 'premultiplied'
   });
 
-  // 4: Create vertex buffer to contain vertex data
-  const vertexBuffer = device.createBuffer({
-    size: vertices.byteLength, // make it big enough to store vertices in
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-  });
-
-  // Copy the vertex data over to the GPUBuffer using the writeBuffer() utility function
-  device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);
-
-  // 5: Create a GPUVertexBufferLayout and GPURenderPipelineDescriptor to provide a definition of our render pipline
-  const vertexBuffers = [{
-    attributes: [{
-      shaderLocation: 0, // position
-      offset: 0,
-      format: 'float32x4'
-    }, {
-      shaderLocation: 1, // color
-      offset: 16,
-      format: 'float32x4'
-    }],
-    arrayStride: 32,
-    stepMode: 'vertex'
-  }];
 
   const pipelineDescriptor = {
     vertex: {
       module: shaderModule,
       entryPoint: 'vertex_main',
-      buffers: vertexBuffers
+      buffers: []
     },
     fragment: {
       module: shaderModule,
@@ -136,37 +82,57 @@ async function init() {
   };
 
   // 6: Create the actual render pipeline
-
-  const renderPipeline = device.createRenderPipeline(pipelineDescriptor);
+  renderPipeline = device.createRenderPipeline(pipelineDescriptor);
     
   // 7: Create GPUCommandEncoder to issue commands to the GPU
   // Note: render pass descriptor, command encoder, etc. are destroyed after use, fresh one needed for each frame.
-  const commandEncoder = device.createCommandEncoder();
 
   // 8: Create GPURenderPassDescriptor to tell WebGPU which texture to draw into, then initiate render pass
 
-  const renderPassDescriptor = {
+  descriptor = {
     colorAttachments: [{
-      clearValue: clearColor,
+      clearValue: {r:0, g:0, b:0, a:1.0},
       loadOp: 'clear',
       storeOp: 'store',
       view: context.getCurrentTexture().createView()
     }]
   };
 
-  const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-    
-  // 9: Draw the triangle
 
-  passEncoder.setPipeline(renderPipeline);
-  passEncoder.setVertexBuffer(0, vertexBuffer);
-  passEncoder.draw(3);
+    const uniformBufferSize = 8;
+    uniformBuffer = device.createBuffer({
+        size: uniformBufferSize,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
 
-  // End the render pass
-  passEncoder.end();
+    uniformBindGroup = device.createBindGroup({
+        layout: renderPipeline.getBindGroupLayout(0),
+        entries: [{ binding: 0, resource: uniformBuffer }],
+    });
 
-  // 10: End frame by passing array of command buffers to command queue for execution
-  device.queue.submit([commandEncoder.finish()]);
+
 }
 
-init();
+var time = 0.0;
+
+function render() {
+    let bounding = canvas.getBoundingClientRect();
+    context.canvas.width = bounding.width;
+    context.canvas.height = bounding.height;
+    device.queue.writeBuffer(uniformBuffer, 0, new Float32Array([bounding.width / bounding.height, time]), 0, 2);
+    console.log(bounding.width / bounding.height);
+    const commandEncoder = device.createCommandEncoder();
+    descriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
+    const passEncoder = commandEncoder.beginRenderPass(descriptor);
+    passEncoder.setPipeline(renderPipeline);
+    passEncoder.setBindGroup(0, uniformBindGroup);
+    passEncoder.draw(3);
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+    time += 0.016;
+    window.requestAnimationFrame(render)
+}
+
+init().then((() => {
+    window.requestAnimationFrame(render);
+}))
