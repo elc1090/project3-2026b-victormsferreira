@@ -26,7 +26,9 @@ loginBtn.addEventListener("click", ((e) => {
         });
 }));
 
+document.getElementById("create-button").addEventListener("click", ((e) => {
 
+}));
 
 signupBtn.addEventListener("click", ((e) => {
     const signupRequest = {
