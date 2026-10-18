@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Projeto 3</title>
+</head>
+<body>
+    <div style="left: 0; right: 0; top: 0; bottom: 0; position: absolute;">
+    <header>
+        <p>Projeto 3</p>
+        <div style="margin-right: 10px; margin-left: auto;">
+            <button id="login-button">Entrar</button>
+            <div id="logged-in-panel" class="hidden" style="gap: 10px">
+                <p id="account-name">Empty</p>
+                <button id="save-button">Salvar</button>
+                <button id="logout-button">Sair</button>
+            </div>
+        </div>
+    </header>
+    <div style="display: flex; width: 100%; height: 92%; flex-direction: row;">
+        <div class="mesh-tree">
+            <div style="display: grid-lanes;">
+                <button>Adicionar</button>
+                <button>Remover</button>
+            </div>
+            <p>Hi</p>
+        </div>
+        <canvas id="wgpu-canvas">
+        </canvas>
+        <div class="mesh-inspector">
+            <p>Hi</p>
+        </div>
+    </div>
+
+    </div>
+    <script src="/dist/pocketbase.umd.js"></script>
+    <script src="/const.js"></script>
+    <script src="/creator.js"></script>
+</body>
+</html>
