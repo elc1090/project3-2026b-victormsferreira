@@ -20,3 +20,8 @@ logoutBtn.addEventListener("click", ((e) => {
 loginBtn.addEventListener("click", ((e) => {
     window.location.replace("/login.html");
 }))
+
+
+document.getElementById("create-button").addEventListener("click", ((e) => {
+    window.location.replace("/creator.html");
+}));

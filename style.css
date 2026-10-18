@@ -12,10 +12,12 @@ header {
     right: 0;
     margin: 0px;
     padding: 8px;
-    position: absolute;
     display: flex;
     flex-direction: row;
-    
+    height: 6%;
+    position: sticky;
+    justify-content: center;
+    align-items: center;
 }
 
 .vertical-container {
@@ -103,4 +105,22 @@ input {
     display: flex;
     gap: 32px;
     padding: 5px;
+}
+
+.mesh-tree {
+    width: 20%;
+    background-color: #272744;
+    border-right: 1px solid #494d7e ;
+    padding: 32px;  
+}
+
+#wgpu-canvas {
+    width: 60%;
+    background-color: #000000;
+}
+
+.mesh-inspector {
+    width: 20%;
+    border-left: 1px solid #494d7e ;
+    padding: 32px;
 }
