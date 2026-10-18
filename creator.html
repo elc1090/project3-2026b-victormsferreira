@@ -38,6 +38,101 @@
     </div>
 
     </div>
+    <script type="wgsl" id="shader">
+        
+        fn smoothUnion(a : f32, b : f32, k : f32 ) -> f32 {
+            var h : f32 = max((k * 4)-abs(a-b),0.0);
+            return min(a, b) - h*h*0.25/(k * 4);
+        }
+
+        fn sdSphere(p : vec3f, c : vec3f, r : f32) -> f32 {
+            return distance(p, c) - r;
+        }
+
+        fn sdPlane(p : vec3f, n : vec3f, h : f32) -> f32 {
+            return dot(p,n) + h;
+        }
+
+        struct VertexOut {
+            @builtin(position) position : vec4f,
+            @location(0) uv : vec2f
+        }
+
+        struct Shape {
+            pos : vec3f,
+            size : vec3f,
+            col : vec3f,
+        }
+
+        struct Uniforms {
+            aspectRatio : f32,
+            time : f32,
+        }
+        @binding(0) @group(0) var<uniform> uniforms : Uniforms;
+        @group(0) @binding(1) var<storage, read> shapes: array<Shape>;
+
+
+        @vertex
+        fn vertex_main(@builtin(vertex_index) vertex_index : u32) -> VertexOut {
+            var output : VertexOut;
+            var x : f32 = -1.0 + f32((vertex_index & 1) << 2);
+            var y : f32 = -1.0 + f32((vertex_index & 2) << 1);
+            var u : f32 = (x+1.0)*0.5;
+            var v : f32 = (y+1.0)*0.5;
+            output.position = vec4f(x, y, 0.0, 1.0);
+            output.uv = vec2f(u * uniforms.aspectRatio, v);
+            return output;
+        }
+
+        fn map(origin : vec3f) -> vec4f {
+            var dist : f32 = 32.0;
+
+            // need to store all shapes and loop through all of them, calculating their SDF
+            dist = sdSphere(origin, vec3f(0, sin(uniforms.time), 0), 2.0);
+            dist = smoothUnion(dist, sdPlane(origin, vec3f(0, 1, 0), 2.0), cos(uniforms.time));
+            return vec4f(1.0, 0.0, 1.0, dist);
+        }
+
+        fn mapNormal(origin : vec3f) -> vec3f {
+            const epsilon : f32 = 0.01;
+            var x : f32 = map(vec3f(origin.x+epsilon,origin.y,origin.z)).w - map(vec3f(origin.x-epsilon,origin.y,origin.z)).w;
+            var y : f32 = map(vec3f(origin.x,origin.y+epsilon,origin.z)).w - map(vec3f(origin.x,origin.y-epsilon,origin.z)).w;
+            var z : f32 = map(vec3f(origin.x,origin.y,origin.z+epsilon)).w - map(vec3f(origin.x,origin.y,origin.z-epsilon)).w;
+            return normalize(vec3f(x,y,z));
+        }
+
+        @fragment
+        fn fragment_main(fragData: VertexOut) -> @location(0) vec4f{
+            var ro : vec3f = vec3f(0.0, 4.0, 8.0);
+            //ro.x = sin(uniforms.time) * 4.0;
+            //ro.z = cos(uniforms.time) * 4.0;
+            //ro.y = cos(uniforms.time) * 2.0;
+            var rd : vec3f = normalize(vec3f(-1.0 + 2.0 * fragData.uv.x, -1.0 + 2.0 * fragData.uv.y, -1.0));
+            var skyCol : vec3f = mix(vec3f(18, 36, 63) / 255.0, vec3f(184, 233, 212) / 255.0, ((rd.y + 1.0) / 2.0));
+            var rayDist : f32 = 0.0;
+            const maxDist : f32 = 32.0;
+            const epsilon : f32 = 0.01;
+            var col : vec3f = skyCol;
+            var lightDir : vec3f = normalize(vec3f(1.0, 1.0, 1.0));
+            while (rayDist < maxDist) {
+                var scene : vec4f = map(ro);
+                if (scene.w <= epsilon) {
+                    col = scene.xyz;
+                    var normal : vec3f = mapNormal(ro);
+                    var ambient = vec3(0.1, 0.1, 0.1) * col;
+                    var hlf : f32 = ((dot(normal, lightDir) / 2.0) + 0.5);
+                    hlf *= hlf;
+                    var l : vec3f = col * hlf;
+                    col = l + ambient;
+                    break;
+                }
+                ro += rd * scene.w;
+                rayDist += scene.w;
+            }
+
+            return vec4f(col, 1.0);
+        }
+    </script>
     <script src="/dist/pocketbase.umd.js"></script>
     <script src="/const.js"></script>
     <script src="/creator.js"></script>
