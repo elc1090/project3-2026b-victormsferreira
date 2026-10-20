@@ -23,5 +23,13 @@ loginBtn.addEventListener("click", ((e) => {
 
 
 document.getElementById("create-button").addEventListener("click", ((e) => {
-    window.location.replace("/creator.html");
+    console.log(pb.authStore.record.id);
+    const body = {
+        "name": "New Mesh",
+        "public": false,
+        "creator": pb.authStore.record.id,
+    };
+    pb.collection('models').create(body).then((record) => {
+        window.location.replace("/edit.html?id="+record.id);
+    });
 }));

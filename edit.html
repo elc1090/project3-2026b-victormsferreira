@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Projeto 3</title>
+</head>
+<body>
+    <div style="left: 0; right: 0; top: 0; bottom: 0; position: absolute;">
+    <header>
+        <p>Projeto 3</p>
+        <div style="margin-right: 10px; margin-left: auto;">
+            <button id="login-button">Entrar</button>
+            <div id="logged-in-panel" class="hidden" style="gap: 10px">
+                <p id="account-name">Empty</p>
+                <button id="save-button">Salvar</button>
+                <button id="logout-button">Sair</button>
+            </div>
+        </div>
+    </header>
+    <div style="display: flex; width: 100%; height: 92%; flex-direction: row;">
+        <div class="mesh-tree">
+            <input id="filename" type="text" minlength="4" maxlength="32"/>
+            <div style="display: flex; gap: 10px">
+                <div id="add-shape-div">
+                    <button id="add-shape-button">Adicionar</button>
+                    <div id="add-shape-dropdown" class="dropdown-content" style="min-width: 200px;">
+                        <button class="dropdown-button" id="add-sphere">Esfera</p>
+                        <button class="dropdown-button" id="add-box">Caixa</p>
+                    </div>
+                </div>
+                <button id="remove-shape-button">Remover</button>
+            </div>
+            <div id="shape-list">
+            </div>
+        </div>
+        <canvas id="wgpu-canvas">
+        </canvas>
+        <div class="mesh-inspector">
+            <div id="sphere-inspector" class="hidden">
+                <div class="inspector-element">
+                    <p>Posição: </p>
+                    <input id="sphere-pos-x" style="width: 64px;" type="number" value="0"step="0.1">
+                    <input id="sphere-pos-y" style="width: 64px;" type="number" value="0"step="0.1">
+                    <input id="sphere-pos-z" style="width: 64px;" type="number" value="0"step="0.1">
+                </div>
+                <div class="inspector-element">
+                    <p>Raio: </p>
+                    <input id="sphere-radius" style="width: 64px;" type="number" value="0" step="0.1" min="0">    
+                </div>
+                <div class="inspector-element"  >
+                    <p>Cor: </p>
+                    <input id="sphere-color" type="color" value="#ff00ff" />
+                </div>
+                <div class="inspector-element"  >
+                    <p>Quantidade de mistura: </p>
+                    <input id="sphere-blend" style="width: 64px;" type="number" value="0" step="0.01" min="-1" max="1">
+                </div>
+            </div>
+
+            <div id="box-inspector" class="hidden">
+                <div class="inspector-element">
+                    <p>Posição: </p>
+                    <input id="box-pos-x" style="width: 64px;" type="number" value="0"step="0.1"">
+                    <input id="box-pos-y" style="width: 64px;" type="number" value="0"step="0.1"">
+                    <input id="box-pos-z" style="width: 64px;" type="number" value="0"step="0.1"">
+                </div>
+                <div class="inspector-element">
+                    <p>Tamanho: </p>
+                    <input id="box-size-x" style="width: 64px;" type="number" value="0"step="0.1" min="0">
+                    <input id="box-size-y" style="width: 64px;" type="number" value="0"step="0.1" min="0">
+                    <input id="box-size-z" style="width: 64px;" type="number" value="0"step="0.1" min="0">
+                </div>
+                <div class="inspector-element"  >
+                    <p>Arredondamento: </p>
+                    <input id="box-round" style="width: 64px;" type="number" value="0" step="0.01" min="-1" max="1">
+                </div>
+
+                <div class="inspector-element"  >
+                    <p>Cor: </p>
+                    <input id="box-color" type="color" value="#ffffff" />
+                </div>
+                <div class="inspector-element"  >
+                    <p>Quantidade de mistura: </p>
+                    <input id="box-blend" style="width: 64px;" type="number" value="0" step="0.01" min="-1" max="1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <script type="wgsl" id="shader">
+        
+        fn smoothUnion(a : f32, b : f32, k : f32 ) -> f32 {
+            var h : f32 = max((k * 4)-abs(a-b),0.0);
+            return min(a, b) - h*h*0.25/(k * 4);
+        }
+        fn smoothSubtraction(a : f32, b : f32, k : f32 ) -> f32 {
+            return -smoothUnion(a, -b, k);
+        }
+
+
+        fn sdSphere(p : vec3f, c : vec3f, r : f32) -> f32 {
+            return distance(p, c) - r;
+        }
+
+        fn sdPlane(p : vec3f, n : vec3f, h : f32) -> f32 {
+            return dot(p,n) + h;
+        }
+
+        fn sdRoundBox(p : vec3f, c : vec3f, b : vec3f, r : f32) -> f32 {
+            var p1 : vec3f = c - p;
+            var q : vec3f = abs(p1) - b + r;
+            return length(max(q,vec3f(0.0))) + min(max(q.x,max(q.y,q.z)),0.0) - r;
+        }
+
+        fn sdTorus(p : vec3f, t : vec2f) -> f32 {
+            var q : vec2f = vec2f(length(p.xz)-t.x,p.y);
+            return length(q)-t.y;
+        }
+
+
+        struct VertexOut {
+            @builtin(position) position : vec4f,
+            @location(0) uv : vec2f
+        }
+
+        struct Shape {
+            pos : vec4f,
+            size : vec4f,
+            col : vec4f,
+        }
+
+        fn sdShape(p : vec3f, shape: Shape) -> f32 {
+            var shapeType : i32 = i32(shape.pos.w);
+            switch (shapeType) {
+                case 0: { // sphere
+                    return sdSphere(p, shape.pos.xyz, shape.size.x);
+                }
+                case 1: { // box
+                    return sdRoundBox(p, shape.pos.xyz, shape.size.xyz, shape.size.w);
+                }
+
+                default: {
+                    return 32.0;
+                }
+            }
+        }
+
+       
+        fn blend(a : f32, b: f32, cA : vec3f, cB : vec3f, t: f32 ) -> vec3f
+        {
+            var h : f32 = clamp(0.5+0.5*(b-a)/t, 0.0, 1.0);
+            return mix(cB,cA,h);
+        }
+
+        struct Uniforms {
+            aspectRatio : f32,
+            shapesCount : i32,
+        }
+        struct Matrices {
+            view : mat4x4<f32>,
+            projection : mat4x4<f32>,
+        }
+        @binding(0) @group(0) var<uniform> uniforms : Uniforms;
+        @binding(1) @group(0) var<storage, read> shapes: array<Shape>;
+        @binding(2) @group(0) var<uniform> matrices : Matrices;
+
+
+        @vertex
+        fn vertex_main(@builtin(vertex_index) vertex_index : u32) -> VertexOut {
+            var output : VertexOut;
+            var x : f32 = -1.0 + f32((vertex_index & 1) << 2);
+            var y : f32 = -1.0 + f32((vertex_index & 2) << 1);
+            var u : f32 = x;
+            var v : f32 = y;
+            output.position = vec4f(x, y, 0.0, 1.0);
+            output.uv = vec2f(u, v);
+            return output;
+        }
+
+        fn map(origin : vec3f) -> vec4f {
+            var dist : f32 = 3200000.0;
+            var col : vec3f = vec3(0.5, 0.5, 0.5);
+            var d : f32;
+            for (var i : i32 = 0; i < uniforms.shapesCount; i++) {
+                d = sdShape(origin, shapes[i]);
+                if (shapes[i].col.w > 0) {
+                    col = blend(dist, d, col, shapes[i].col.xyz, shapes[i].col.w);
+                    dist = smoothUnion(dist, d, shapes[i].col.w);
+                } else if (shapes[i].col.w < 0) {
+                    col = blend(-d, dist, col, shapes[i].col.xyz, -shapes[i].col.w);
+                    dist = smoothSubtraction(d, dist, -shapes[i].col.w);
+                } else {
+                    col = blend(dist, d, col, shapes[i].col.xyz, 0.0);
+                    dist = min(dist, d);
+                }
+            }
+
+            d = sdPlane(origin, vec3f(0, 1, 0), 0.0);
+            var xi : i32 = i32(round(abs(origin.x)));
+            var zi : i32 = i32(round(abs(origin.z)));
+            var i : i32 = (xi + zi) % 2;
+            var c : vec3f = mix(vec3f(0.0), vec3f(1.0), f32(i));
+            var planeCol : vec3f = mix(vec3f(1.0, 1.0, 1.0), 
+                                       vec3f(0.0, 0.0, 0.0),
+                                       c);
+            col = blend(dist, d, col, planeCol, 0.00);
+            dist = min(dist, d);
+            return vec4f(col, dist);
+        }
+
+        fn mapNormal(origin : vec3f) -> vec3f {
+            const epsilon : f32 = 0.001;
+            var x : f32 = map(vec3f(origin.x+epsilon,origin.y,origin.z)).w - map(vec3f(origin.x-epsilon,origin.y,origin.z)).w;
+            var y : f32 = map(vec3f(origin.x,origin.y+epsilon,origin.z)).w - map(vec3f(origin.x,origin.y-epsilon,origin.z)).w;
+            var z : f32 = map(vec3f(origin.x,origin.y,origin.z+epsilon)).w - map(vec3f(origin.x,origin.y,origin.z-epsilon)).w;
+            return normalize(vec3f(x,y,z));
+        }
+        fn rayOrigin(invView : mat4x4<f32>) -> vec3f {
+            return (invView * vec4f(0, 0, 0, 1.0)).xyz;
+        }
+        fn rayDir(invProj : mat4x4<f32>, invView : mat4x4<f32>, uv : vec2f) -> vec3f {
+            var dir : vec3f = (invProj * vec4f(uv, 0.0, 1.0)).xyz;
+            dir = (invView * vec4f(dir, 0.0)).xyz;
+            return normalize(dir);
+        }
+        @fragment
+        fn fragment_main(fragData: VertexOut) -> @location(0) vec4f{
+            var ro : vec3f = rayOrigin(matrices.view);
+            var rd : vec3f = rayDir(matrices.projection, matrices.view, fragData.uv);
+            var rayDist : f32 = 0.0;
+            const maxDist : f32 = 100.0;
+            const epsilon : f32 = 0.001;
+            var skyCol : vec3f = mix(vec3f(18, 36, 63) / 255.0, vec3f(184, 233, 212) / 255.0, ((rd.y + 1.0) / 2.0));
+            var col : vec3f = skyCol;
+            var lightDir : vec3f = normalize((matrices.view * vec4f(1.0, 1.0, 1.0, 0.0)).xyz);
+            while (rayDist < maxDist) {
+                var scene : vec4f = map(ro);
+                if (scene.w <= epsilon) {
+                    col = scene.xyz;
+                    var normal : vec3f = mapNormal(ro);
+                    var ambient = vec3(0.1, 0.1, 0.1) * col;
+                    var hlf : f32 = ((dot(normal, lightDir) / 2.0) + 0.5);
+                    hlf *= hlf;
+                    var l : vec3f = col * hlf;
+                    col = l + ambient;
+                    col = mix(col, skyCol, rayDist / maxDist);
+                    break;
+                }
+                ro += rd * scene.w;
+                rayDist += scene.w;
+            }
+            return vec4f(col, 1.0);
+        }
+    </script>
+    <script src="/dist/pocketbase.umd.js"></script>
+    <script src="/dist/gl-matrix.js"></script>
+    <script src="/const.js"></script>
+    <script src="/creator.js"></script>
+</body>
+</html>
