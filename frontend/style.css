@@ -111,7 +111,7 @@ input {
     width: 20%;
     background-color: #272744;
     border-right: 1px solid #494d7e ;
-    padding: 32px;  
+    padding: 32px;
 }
 
 #wgpu-canvas {
@@ -121,6 +121,65 @@ input {
 
 .mesh-inspector {
     width: 20%;
+    min-width: 20%;
+    max-width: 20%;
     border-left: 1px solid #494d7e ;
     padding: 32px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #494d7e;
+  border: 1px solid #8b6d9c;
+  border-radius: 8px;
+  z-index: 1;
+  padding: 8px;
+}
+.dropdown-show {display:block;}
+
+.dropdown-button {
+    background-color: #8b6d9c;
+    border-radius: 8px;
+    border-width: 0;
+    color: #fbf5ef;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Roboto";
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 6px 12px;
+    text-align: center;
+    transition: all 200ms;
+    vertical-align: baseline;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    box-shadow: black 8px 8px;
+    outline-width: 4px;
+    outline-color: #8b6d9c;
+}
+
+.inspector-element {
+    display: flex; 
+    gap: 16px;
+    justify-content: start;
+    align-items: center;
+}
+
+.inspector {
+    width: 100%;
+    display: grid;
+    gap: 32px; 
+    justify-content: center;
+}
+
+#shape-list p {
+    outline: solid;
+    outline-width: 1px;
+    outline-color: #8b6d9c;
 }
