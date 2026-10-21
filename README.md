@@ -16,8 +16,6 @@ Victor Mateus Severo Ferreira
 ## Proposta
 - Ferramenta de modelagem 3D utilizando WebGPU/WebGL? para renderização. Usuários podem salvar e compartilhar publicamente o modelo no site.
 
-
-
 ## Desenvolvimento
 
 ### Processo
@@ -37,12 +35,12 @@ Substitua este texto por uma indicação de pelo menos 3 trechos de código que 
 
 ### Linguagens e afins
 
-Substitua este texto por uma lista detalhada de tecnologias utilizadas:
 - HTML
 - CSS
 - JavaScript
 - WebGPU
 - PocketBase
+- glMatrix
 
 ### Autenticação e autorização
 
@@ -60,8 +58,8 @@ Substitua este trecho por uma lista bem detalhada de todo material consultado pa
 - [Documentação do PocketBase](https://pocketbase.io/docs/)
 - [Descrição de Funções SDF por Inigo Quilez](https://iquilezles.org/articles/distfunctions/)
 - [Tour da Linguagem WGSL](https://google.github.io/tour-of-wgsl/)
-
-
+- [Vídeo de Sebastian Lague sobre Raymarching](https://youtu.be/Cp5WWtMoeKg)
+- [Documentação do glMatrix](https://glmatrix.net/docs/)
 
 
 ---
