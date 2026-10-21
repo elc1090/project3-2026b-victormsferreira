@@ -32,9 +32,11 @@ var shapesBuffer;
 var matricesBuffer;
 var bindGroup;
 var meshID;
+var previewMode = false;
 async function getShapes() {
     const searchParams = new URLSearchParams(window.location.search);
     meshID = searchParams.get("id");
+    console.log(meshID);
     const rec = await pb.collection('models').getOne(meshID);
     document.getElementById("filename").value = rec.name;
     if (rec.mesh) {
@@ -44,6 +46,17 @@ async function getShapes() {
             addShape(new Shape(shape.pos, shape.type, shape.size, shape.color, shape.smoothness, shape.shapeType));
         }
     }
+    selectShape(-1);
+    if (!searchParams.has("preview")) {
+        previewMode = false;
+    } else {
+        previewMode = true;
+        document.getElementById("filename").readOnly = "true";
+        document.getElementById("add-shape-button").className = "hidden";
+        document.getElementById("remove-shape-button").className = "hidden";
+        document.getElementById("save-button").className = "hidden";
+    }
+
 }
 
 async function save() {
@@ -326,7 +339,7 @@ init().then((() => {
     canvas.addEventListener("mousemove", ((e) => {
         e.preventDefault();
         if (!movingCam) return;
-        if (selectedShape != -1) {
+        if (selectedShape != -1 && !previewMode) {
             var p = glMatrix.vec3.fromValues(shapes[selectedShape].pos.x, shapes[selectedShape].pos.y, shapes[selectedShape].pos.z);
             var dist = 1.0 / 100.0;
             cam.calcDirs();
@@ -413,6 +426,9 @@ const boxValueEditors = {
 }
 
 function updateInspector() {
+    if (selectedShape == -1 || previewMode) {
+        return;
+    }
     var shape = shapes[selectedShape];
     switch (shape.type) {
         case 0:
@@ -439,7 +455,7 @@ function updateInspector() {
 
 function selectShape(index) {
     selectedShape = index;
-    if (index == -1) {
+    if (index == -1 || previewMode) {
         boxInspector.className = "hidden";
         sphereInspector.className = "hidden";
         return;
@@ -458,6 +474,7 @@ function selectShape(index) {
 }
 
 function addShape(shape) {
+    if (previewMode) return;
     shapes.push(shape);
     const shapeList = document.getElementById("shape-list");
     while (shapeList.firstChild) {
@@ -476,6 +493,7 @@ function addShape(shape) {
     selectShape(shapes.length-1);
 }
 function removeShape(index) {
+    if (previewMode) return;
     shapes.splice(index, 1);
     const shapeList = document.getElementById("shape-list");
     while (shapeList.firstChild) {
