@@ -1,13 +1,5 @@
 # Projeto: Aplicação com cadastro e autenticação de usuários integrando frontend, backend e persistência
 
-> 1. Leia com atenção as instruções abaixo para editar este README em formato Markdown.
-> 2. Substitua todos os trechos de texto iniciados com "Substitua" por informações do seu projeto, conforme solicitado em cada trecho.
-> 3. Substitua a imagem animada por um GIF/WEBP mostrando o resultado do seu projeto (o arquivo pode ser armazenado no repositório ou em URL externa). 
-> 4. Remova todas as instruções de entrega.
-> 5. Renomeie esta arquivo para README.md e entregue-o dentro da pasta raiz do seu repositório de entrega. 
-> 6. Double-check: Certifique-se de que seu README.md não contenha instruções de entrega e seja visualizado corretamente ao abrir seu repositório!
-> Opcional: você pode alterar a formatação deste README, mas mantenha todas as informações solicitadas.
-
 ![Substitua a imagem ao lado por um GIF/WEBP animado mostrando seu projeto](./moho_follow_through2.gif "GIF animado do projeto. Imagem temporária de Moho Animation https://moho.lostmarble.com/products/moho-pro-special-halls-head-college")
 
 
@@ -54,7 +46,7 @@ Substitua este texto por uma lista detalhada de tecnologias utilizadas:
 
 ### Autenticação e autorização
 
-Substitua este texto por uma descrição de como foram implementadas a autenticação e a autorização (session? token?).
+A autenticação foi feita através da API de autenticação do PocketBase. Essa API possibilita a autenticação de várias formas, como email/senha, oauth, MFA, mas nesse projeto utilizei apenas email/senha. Ela armazena um token no navegador até que esse token seja limpado do armazenamento. Para a autorização, utilizei as regras de coleção do PocketBase. Essas regras permitem definir condições nas quais os bancos de dados podem ser acessados pelos usuários. Por exemplo, nesse projeto criei uma regra na coleção de modelos que permite que apenas o dono do modelo seja capaz de edita-lo, e uma regra que permite que apenas o dono possa listar o modelo, a menos que o modelo tenha sido marcado como público.
 
 ### Ambiente de desenvolvimento
 
