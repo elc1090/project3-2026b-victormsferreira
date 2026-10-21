@@ -15,6 +15,7 @@ header {
     display: flex;
     flex-direction: row;
     height: 6%;
+    max-height: 6%;
     position: sticky;
     justify-content: center;
     align-items: center;
@@ -182,4 +183,51 @@ input {
     outline: solid;
     outline-width: 1px;
     outline-color: #8b6d9c;
+}
+
+
+.logo {
+    float: left;
+    width: 64px;
+    border-radius: 16px;
+}
+.logo img {
+    max-width: 100%;;
+    object-fit: scale-down;
+}
+
+#previews-container {
+    display: flex;
+    padding: 16px;
+    height: 92%;
+    flex-direction: row;
+    gap: 24px;
+}
+
+.preview {
+    padding: 4px;
+    border: double;
+    border-width: 8px;
+    border-color: #8b6d9c;
+    border-radius: 8px;;
+    display: block;
+}
+
+.preview p {
+    font-size: smaller;
+    font-style: italic;
+}
+
+.preview a p {
+    font-size: medium;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.preview a {
+    color: inherit;
+    text-decoration: inherit;
+    border-bottom: solid;
+    border-width: 4px;
+    border-color: #8b6d9c;
 }

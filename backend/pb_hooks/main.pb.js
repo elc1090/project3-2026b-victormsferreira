@@ -1,6 +1,20 @@
-routerAdd("GET", "/hello/{name}", (e) => {
-    let name = e.request.pathValue("name")
-
-    return e.json(200, { "message": "Hello " + name })
+routerAdd("GET", "/frontpage", (e) => {
+    let models = $app.findRecordsByFilter(
+        "models",                                    // collection
+        "public = true", // filter
+        "-updated",                                   // sort
+        25,                                            // limit
+        0,                                             // offset
+    );
+    var res = [];
+    for (var model of models) {
+        var m = {
+            id: model.id,
+            creator: $app.findRecordById("users", model.get("creator")).get("name"),
+            thumbnail: model.get("thumbnail"),
+            name: model.get("name"),
+        };
+        res.push(m);
+    }
+    return e.json(200, res);
 });
-
