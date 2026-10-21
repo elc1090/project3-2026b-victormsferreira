@@ -18,7 +18,7 @@ logoutBtn.addEventListener("click", ((e) => {
 
 
 loginBtn.addEventListener("click", ((e) => {
-    window.location.replace("/login.html");
+    window.location.replace("login.html");
 }))
 
 
@@ -30,7 +30,7 @@ document.getElementById("create-button").addEventListener("click", ((e) => {
         "creator": pb.authStore.record.id,
     };
     pb.collection('models').create(body).then((record) => {
-        window.location.replace("/edit.html?id="+record.id);
+        window.location.replace("edit.html?id="+record.id);
     });
 }));
 
@@ -43,9 +43,9 @@ function createPreview(m) {
     var a = document.createElement("a");
     var a2 = document.createElement("a");
     if (!pb.authStore.valid || m.creatorID != pb.authStore.record.id) {
-        a.href = "/edit.html?id="+m.id+"&preview=true";
+        a.href = "edit.html?id="+m.id+"&preview=true";
     } else {
-        a.href = "/edit.html?id="+m.id;
+        a.href = "edit.html?id="+m.id;
     }
     div.className = "preview";
     img.src = imgURL;
@@ -53,7 +53,7 @@ function createPreview(m) {
     name.innerText = m.name;
     creator.style.fontSize = "smaller";
     creator.style.fontStyle = "italic";
-    a2.href = "/user.html?id="+m.creator;
+    a2.href = "user.html?id="+m.creator;
     a.appendChild(img);
     a.appendChild(name);
     a2.appendChild(creator);

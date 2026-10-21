@@ -10,12 +10,12 @@ if (pb.authStore.isValid) {
     loggedIn.className = "logged-in-panel";
     accountName.innerText = pb.authStore.record.name;
 } else {
-    window.location.replace("/login.html");
+    window.location.replace("login.html");
 }
 
 logoutBtn.addEventListener("click", ((e) => {
     pb.authStore.clear();
-    window.location.replace("/index.html");
+    window.location.replace("index.html");
 }))
 
 

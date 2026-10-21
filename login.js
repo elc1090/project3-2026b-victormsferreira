@@ -22,7 +22,7 @@ loginBtn.addEventListener("click", ((e) => {
     pb.collection("users").authWithPassword(
         document.getElementById("loginemail").value,
         document.getElementById("loginpassword").value).then((e) => {
-            window.location.replace("/index.html");
+            window.location.replace("index.html");
         });
 }));
 
@@ -38,7 +38,7 @@ signupBtn.addEventListener("click", ((e) => {
         pb.collection("users").authWithPassword(
             document.getElementById("signupemail").value,
             document.getElementById("signuppassword").value).then((e) => {
-                window.location.replace("/index.html");
+                window.location.replace("index.html");
             });
     });
 }));
