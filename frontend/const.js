@@ -1,1 +1,1 @@
-const PB_URL = "http://127.0.0.1:8090"
+const PB_URL = "https://wrj44i3o965tywz.pwz5.pocketbasecloud.com"
