@@ -39,6 +39,7 @@ async function getShapes() {
     console.log(meshID);
     const rec = await pb.collection('models').getOne(meshID);
     document.getElementById("filename").value = rec.name;
+    document.getElementById("public-check").checked = rec.public;
     if (rec.mesh) {
         var url = pb.files.getURL(rec, rec.mesh);
         var js = await (await fetch(url)).json();
@@ -55,6 +56,7 @@ async function getShapes() {
         document.getElementById("add-shape-button").className = "hidden";
         document.getElementById("remove-shape-button").className = "hidden";
         document.getElementById("save-button").className = "hidden";
+        document.getElementById("public-check").className = "hidden";
     }
 
 }
@@ -66,6 +68,7 @@ async function save() {
             "name": document.getElementById("filename").value,
             "thumbnail": new File([blob], meshID+"_thumbnail.png"),
             "mesh": new File([js], meshID+"_shapes.json"),
+            "public": document.getElementById("public-check").checked,
         };
         pb.collection('models').update(meshID, body);
     }, "image/png");

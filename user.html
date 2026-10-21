@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Projeto 3</title>
+</head>
+<body>
+    <header>
+        <a href="/index.html" class="logo"><img src="/logo.png"/></a>
+        <div style="margin-right: 10px; margin-left: auto;">
+            <button id="login-button">Entrar</button>
+            <div id="logged-in-panel" class="hidden" style="gap: 10px">
+                <p id="account-name">Empty</p>
+                <button id="create-button">Criar</button>
+                <button id="logout-button">Sair</button>
+            </div>
+        </div>
+    </header>
+    <h1 id="name-header"></h1>
+    <div id="previews-container">
+    </div>
+
+    <script src="/dist/pocketbase.umd.js"></script>
+    <script src="/const.js"></script>
+    <script src="/app.js"></script>
+    <script type="text/javascript">loadUserpage();</script>
+</body>
+</html>
