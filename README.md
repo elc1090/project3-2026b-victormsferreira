@@ -1,6 +1,6 @@
 # Projeto: Aplicação com cadastro e autenticação de usuários integrando frontend, backend e persistência
 
-![gifprojeto](./gif.gif")
+![gifprojeto](./gif.gif)
 
 
 ## Acesso
@@ -44,6 +44,8 @@ Após escrever o renderizador, criei a interface do editor de modelos utilizando
 Quando o editor de modelos estava pronto, criei uma nova coleção no PocketBase para salvar os modelos criados pelos usuários, e adicionei ao editor o botão para salvar o modelo. Essa coleção contém o nome do modelo e o criador, um arquivo .json contendo os objetos que compoem esse modelo, um arquivo .png contendo uma imagem que serve de thumbnail para o modelo quando ele é exibido na galeria, e um valor booleano que declara se esse modelo é público ou não. Adicionei então a essa coleção regras de API que fazem com que apenas o usuário criador do modelo possa edita-lo, e que, se o modelo não for público, apenas o criador também pode vê-lo.
 
 Após isso, utilizei a feature de extensões do PocketBase, que permitem utiliza-lo como um framework de backend JavaScript, para adicionar duas novas rotas ao backend. A rota `/frontpage`, que seleciona os últimos 25 modelos salvados publicamente no site, e rota `users/{name}/models`, que retorna todos os modelos criados por um usuário (o PocketBase automaticamente utiliza as regras de API de coleções como filtros de query, fazendo com que apenas os modelos públicos de usuário sejam retornados caso o usuário fazendo o pedido esteja vendo o perfil de outro usuário, ou todos os modelos, caso o usuário esteja vendo seu próprio perfil). Essas rotas são usadas na página principal do site, que mostra uma galeria de modelos, e na página de perfil de usuário, acessível a clicar o nome de usuário em algum modelo da galeria.
+
+Para fazer o deploy, o mais difícil seria realizar o deploy do backend, pois posso utilizar o github-pages para o frontend. Inicialmente tentei utilizar o tier grátis do Google Cloud, recomendado na documentação do PocketBase, porém esse tier 'grátis' requer um pagamento inicial de R$200. Tentei também utilizar o Oracle Cloud, porém não consegui fazer a criação de uma conta. Eventualmente encontrei um serviço de hospedagem dedicado ao pocketbase chamado pocketbasecloud, que providencia um tier grátis. Para fazer o deploy nesse serviço, foi necessário apenas colocar todos os arquivos do pocketbase da pasta `backend` em um zip e carrega-los no site, que então me proveu com uma URL para a minha instância, que pode ser facilmente substituida no arquivo consts.js, que até então utilizava o localhost.
 
 ### Trechos de código
 
