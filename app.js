@@ -42,7 +42,7 @@ function createPreview(m) {
     var creator = document.createElement("p");
     var a = document.createElement("a");
     var a2 = document.createElement("a");
-    if (!pb.authStore.valid || m.creatorID != pb.authStore.record.id) {
+    if (!pb.authStore.isValid || m.creatorID != pb.authStore.record.id) {
         a.href = "edit.html?id="+m.id+"&preview=true";
     } else {
         a.href = "edit.html?id="+m.id;
